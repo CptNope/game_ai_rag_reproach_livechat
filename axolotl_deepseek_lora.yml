@@ -1,0 +1,37 @@
+
+base_model: deepseek-ai/deepseek-coder-1.3b-base
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+load_in_4bit: true
+gptq: false
+
+datasets:
+  - path: game_memory/megaman_finetune.jsonl
+    type: alpaca
+
+dataset_prepared_path: last_run_prepared
+val_set_size: 0.05
+output_dir: megaman-deepseek-lora
+
+adapter: lora
+lora_r: 8
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target: all
+
+sequence_len: 512
+sample_packing: false
+pad_to_sequence_len: true
+
+gradient_accumulation_steps: 4
+micro_batch_size: 1
+num_epochs: 3
+optimizer: adamw_bnb_8bit
+lr_scheduler: cosine
+learning_rate: 5e-5
+train_on_inputs: false
+group_by_length: false
+
+save_steps: 10
+save_total_limit: 1
+logging_steps: 5
