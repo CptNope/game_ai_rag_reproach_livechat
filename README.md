@@ -1,98 +1,124 @@
 
-# 🎮 Mario AI Companion — Full Real-Time Dashboard Edition
+# 🧠 Mario AI Companion — Full Dashboard + Stats Edition
 
-This project combines AI gameplay, real-time monitoring, and interactive control for **Super Mario Bros (NES)** using a custom AI agent.
+This system builds a real-time AI assistant that plays Super Mario Bros (NES), learns from memory, and displays all decisions, metrics, and milestones in a visual dashboard.
 
 ---
 
 ## 🚀 Features
 
-- ✅ AI-controlled Mario using RAM + LLM (DeepSeek, Ollama, or Transformers)
-- 🔁 Reward logging + live visualization (Plotly)
-- 🎥 Live game frame stream
-- 🧠 Real-time AI state + console log in-browser
-- 🛠️ Interactive Dashboard:
-  - ⏸️ Pause / Resume AI
-  - 🔄 Reset Game from Savestate
-  - 📝 Manual Episode Logging
-  - 💾 Save / Load State (slot 0)
-  - 📦 One-click Export (logs + screenshots)
+- ✅ AI plays Mario using RAM analysis, RAG, and LLM reasoning
+- 🎮 Live game frame stream + RAM-to-language state display
+- 📈 Reward and score plotting in real time (Plotly.js)
+- 🛠️ Browser-based Dashboard with full control:
+  - ⏸️ Pause / Resume AI loop
+  - 🔄 Reset game from savestate
+  - 💾 Save / 📥 Load slot 0
+  - 📝 Log episode manually
+  - 📦 Export session logs + screenshots
+- 🏆 Achievement system with toast popups
+- 📊 AI stats and graphs (survival, retries, scores, levels)
+- 📍 Level-based tracking (attempts + completions)
+- 🧾 Chat log + event console viewer
+- 🔄 Live syncing via Flask-SocketIO
 
 ---
 
-## 🧰 Requirements
+## 📂 Folder Structure
 
-- Linux / WSL (Ubuntu recommended)
-- Python 3.9–3.11
-- Optional: GPU + Ollama (or HuggingFace models)
+- `game_memory/logs/` — stores screenshots, logs, achievements, and stats
+- `utils/reward_dashboard_live.py` — Flask + WebSocket server
+- `main.py` — AI game loop
+- `retroarch_interface/` — emulator RAM parsing scripts
 
-Install dependencies:
+---
+
+## 📦 Install Requirements
+
 ```bash
-pip install flask flask-socketio pillow matplotlib plotly
+pip install flask flask-socketio matplotlib pillow plotly
+```
+
+Optional for AI:
+```bash
+pip install axolotl transformers sentence-transformers peft bitsandbytes
 ```
 
 ---
 
-## 💡 How to Run
+## 🧑‍💻 How to Use
 
-### 1. Start the Flask Dashboard
+### 1. Run the Flask Dashboard
 ```bash
 python utils/reward_dashboard_live.py
 ```
-
 Then open:
 ```
 http://localhost:5000
 ```
 
-### 2. Start the AI loop
-In another terminal:
+### 2. Start the AI Player
 ```bash
 python main.py
 ```
 
-Mario will play with commentary and log reward over time.
+---
+
+## 📤 Export Everything
+
+Click **Export Session** to download:
+- Screenshots: `frame_*.png`
+- Logs: `chat_log.txt`, `reinforce_log.jsonl`
+- Stats: `ai_stats.json`, `level_stats.json`, `achievements.json`
 
 ---
 
-## 📤 Exporting Sessions
+## 🏆 Achievements
 
-Click the 📦 **Export Full Session** button to download:
-- `chat_log.txt`
-- `reinforce_log.jsonl`
-- All `frame_*.png` screenshots
+- 🍄 Got Mushroom
+- 🥇 Got Fire Flower
+- 🧱 Reached Half Level
+- 🏁 Finished Level
+- ☠️ Died
+- 🔁 Retry after Death
+- 🏅 New High Score
+- 🏃 Longest Survival
 
-These are packaged into a ZIP file (`session_export.zip`).
-
----
-
-## 💾 Savestate Slots
-
-Use the dashboard buttons to:
-- 💾 Save current state to **slot 0**
-- 📥 Load previously saved state from **slot 0**
-
-Extendable to multiple slots later.
+Shown as:
+- 📜 Console messages
+- 🎉 Popup toast notifications
+- 🏆 Dashboard achievement list
 
 ---
 
-## 📜 Logs + Rewards
+## 📈 AI Stats Visualized
 
-Live data streamed from:
-- `game_memory/logs/chat_log.txt`
-- `game_memory/logs/reinforce_log.jsonl`
-
-Plotted in-browser using Plotly.js and shown frame-by-frame.
-
----
-
-## 🧠 Future Ideas
-
-- Multi-slot support for savestates
-- Auto-episode summarization + export
-- MJPEG or RTSP video feed
-- RL fine-tuning from collected sessions
+- Bar charts for:
+  - Level Attempts
+  - Level Completions
+- Coming soon:
+  - Death vs Retry counts
+  - Score per session
+  - Timeline survival plots
 
 ---
 
-Made by SciStories & ChatGPT. Ready for AI-assisted retro research labs 🍄🧠
+## 🧠 Model Support
+
+Works with:
+- Ollama (`deepseek-coder`)
+- Transformers via Axolotl (LoRA fine-tuning ready)
+- JSONL export for training custom models
+
+---
+
+## 🧪 Future Roadmap
+
+- Multi-agent scoreboard view
+- RetroAchievement API sync
+- Training graphs + timeline export
+- MJPEG video stream for Pi/Web
+
+---
+
+Built for retro AI research, gamified training, and fun 👾🍄

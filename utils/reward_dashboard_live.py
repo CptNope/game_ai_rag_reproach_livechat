@@ -119,7 +119,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 @app.route("/")
 def index():
-    return render_template_string(HTML_TEMPLATE)
+    return render_template_string(open("utils/templates/dashboard_toast.html").read())
 
 @app.route("/frame")
 def frame():
@@ -221,3 +221,21 @@ if __name__ == "__main__":
     threading.Thread(target=tail_log, daemon=True).start()
     threading.Thread(target=copy_latest_frame, daemon=True).start()
     socketio.run(app, host="0.0.0.0", port=5000)
+
+@app.route("/achievements")
+def get_achievements():
+    path = "game_memory/logs/achievements.json"
+    if not os.path.exists(path):
+        return jsonify([])
+    with open(path, "r") as f:
+        data = json.load(f)
+    return jsonify(data)
+
+@app.route("/stats")
+def get_stats():
+    level_path = "game_memory/logs/level_stats.json"
+    if not os.path.exists(level_path):
+        return jsonify({"levels": {}})
+    with open(level_path, "r") as f:
+        levels = json.load(f)
+    return jsonify({"levels": levels})

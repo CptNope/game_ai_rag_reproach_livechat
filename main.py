@@ -1,3 +1,4 @@
+from flask_socketio import SocketIO, emit
 
 import time
 import os
@@ -92,6 +93,120 @@ What should the player do next?
         with open(f"game_memory/logs/step_{frame_count}.json", "w") as f:
             json.dump({"state": game_state, "action": action}, f, indent=2)
 
+
+        
+        # === ACHIEVEMENT CHECK ===
+        achievement_path = "game_memory/logs/achievements.json"
+        if not os.path.exists(achievement_path):
+            with open(achievement_path, "w") as af:
+                json.dump([], af)
+
+        with open(achievement_path, "r") as af:
+            unlocked = json.load(af)
+
+        # Check for basic Mario achievements
+        checks = {
+            "🥇 Got Fire Flower": reward_state.get("powerup_state") == 2,
+            "🍄 Got Mushroom": reward_state.get("powerup_state") == 1,
+            "🧱 Reached Half-Level": reward_state.get("player_x", 0) > 120,
+            "🏁 Reached End of Level": reward_state.get("player_x", 0) > 220,
+        }
+
+        
+        for label, condition in checks.items():
+            if condition and label not in unlocked:
+                unlocked.append(label)
+                print(f"[ACHIEVEMENT UNLOCKED] {label}")
+                with open("game_memory/logs/chat_log.txt", "a") as chat:
+                    chat.write(f"[ACHIEVEMENT] {label}\n")
+                try:
+                    from reward_dashboard_live import socketio
+                    socketio.emit("toast", label)
+                except Exception as e:
+                    pass
+
+            if condition and label not in unlocked:
+                unlocked.append(label)
+                print(f"[ACHIEVEMENT UNLOCKED] {label}")
+                with open("game_memory/logs/chat_log.txt", "a") as chat:
+                    chat.write(f"[ACHIEVEMENT] {label}\n")
+
+        with open(achievement_path, "w") as af:
+            json.dump(unlocked, af)
+\n        
+        # === ADVANCED STATS + ACHIEVEMENTS ===
+        stat_path = "game_memory/logs/ai_stats.json"
+        if not os.path.exists(stat_path):
+            with open(stat_path, "w") as f:
+                json.dump({"highest_score": 0, "longest_survival": 0, "deaths": 0, "retries": 0}, f)
+
+        with open(stat_path, "r") as f:
+            stats = json.load(f)
+
+        current_score = reward
+        survival_time = frame_count
+        died = reward_state.get("powerup_state") == 0 and reward_state.get("player_x", 0) < 5
+
+        # Track personal bests
+        new_stats = []
+        if current_score > stats["highest_score"]:
+            stats["highest_score"] = current_score
+            new_stats.append("🏅 New High Score!")
+
+        if survival_time > stats["longest_survival"]:
+            stats["longest_survival"] = survival_time
+            new_stats.append("🏃 Longest Survival Streak!")
+
+        if died:
+            stats["deaths"] += 1
+            new_stats.append("☠️ Mario Died")
+            if stats["deaths"] > stats["retries"]:
+                stats["retries"] += 1
+                new_stats.append("🔁 Try Again Unlocked!")
+
+        # Emit any new stats
+        for s in new_stats:
+            try:
+                from reward_dashboard_live import socketio
+                socketio.emit("toast", s)
+            except:
+                pass
+            with open("game_memory/logs/chat_log.txt", "a") as chat:
+                chat.write(f"[STAT] {s}\n")
+
+        with open(stat_path, "w") as f:
+            json.dump(stats, f)
+
+        
+        # === LEVEL TRACKING ===
+        level_path = "game_memory/logs/level_stats.json"
+        if not os.path.exists(level_path):
+            with open(level_path, "w") as f:
+                json.dump({}, f)
+
+        with open(level_path, "r") as f:
+            level_data = json.load(f)
+
+        # For demo: we assume 1-1 unless RAM/ROM map used
+        current_level = "1-1"
+
+        if current_level not in level_data:
+            level_data[current_level] = {"attempts": 0, "completions": 0}
+
+        level_data[current_level]["attempts"] += 1
+
+        if reward_state.get("player_x", 0) > 220:
+            level_data[current_level]["completions"] += 1
+            try:
+                from reward_dashboard_live import socketio
+                socketio.emit("toast", f"🏁 Completed {current_level}")
+            except:
+                pass
+            with open("game_memory/logs/chat_log.txt", "a") as chat:
+                chat.write(f"[LEVEL COMPLETE] {current_level}\n")
+
+        with open(level_path, "w") as f:
+            json.dump(level_data, f)
 
         # 10. Log reward data
         from retroarch_interface.read_mario_ram import read_ram_state, calculate_score
