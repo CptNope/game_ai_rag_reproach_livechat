@@ -1,78 +1,98 @@
 
-# MegaMan AI Fine-Tuning with Axolotl + DeepSeek
+# 🎮 Mario AI Companion — Full Real-Time Dashboard Edition
 
-This project trains a custom MegaMan-playing AI using logged game states and actions from RAM + screenshots.
+This project combines AI gameplay, real-time monitoring, and interactive control for **Super Mario Bros (NES)** using a custom AI agent.
 
 ---
 
-## Step-by-Step Fine-Tuning (6GB RAM Optimized)
+## 🚀 Features
 
-### 1. Install Dependencies
+- ✅ AI-controlled Mario using RAM + LLM (DeepSeek, Ollama, or Transformers)
+- 🔁 Reward logging + live visualization (Plotly)
+- 🎥 Live game frame stream
+- 🧠 Real-time AI state + console log in-browser
+- 🛠️ Interactive Dashboard:
+  - ⏸️ Pause / Resume AI
+  - 🔄 Reset Game from Savestate
+  - 📝 Manual Episode Logging
+  - 💾 Save / Load State (slot 0)
+  - 📦 One-click Export (logs + screenshots)
 
+---
+
+## 🧰 Requirements
+
+- Linux / WSL (Ubuntu recommended)
+- Python 3.9–3.11
+- Optional: GPU + Ollama (or HuggingFace models)
+
+Install dependencies:
 ```bash
-sudo apt update && sudo apt install -y git python3 python3-pip
-pip install -U pip
-pip install axolotl[flash-attn] accelerate bitsandbytes
+pip install flask flask-socketio pillow matplotlib plotly
 ```
 
-If that fails (e.g. Flash Attention incompatibility), fallback:
+---
+
+## 💡 How to Run
+
+### 1. Start the Flask Dashboard
 ```bash
-pip install axolotl accelerate bitsandbytes
+python utils/reward_dashboard_live.py
 ```
 
-> Make sure you’re using Python 3.9–3.11.
+Then open:
+```
+http://localhost:5000
+```
 
----
-
-### 2. Prepare Your Data
-
-Log gameplay using:
-
+### 2. Start the AI loop
+In another terminal:
 ```bash
-python utils/log_and_embed_pairs.py
+python main.py
 ```
 
-Then generate training data:
-
-```bash
-python utils/export_finetune_jsonl.py
-```
+Mario will play with commentary and log reward over time.
 
 ---
 
-### 3. Run Training
+## 📤 Exporting Sessions
 
-Use the included Axolotl config:
+Click the 📦 **Export Full Session** button to download:
+- `chat_log.txt`
+- `reinforce_log.jsonl`
+- All `frame_*.png` screenshots
 
-```bash
-axolotl axolotl_deepseek_lora.yml
-```
-
-This will:
-- Load DeepSeek Coder 1.3B in 4-bit
-- Apply LoRA adapters
-- Fine-tune using your `game_memory/megaman_finetune.jsonl`
+These are packaged into a ZIP file (`session_export.zip`).
 
 ---
 
-### 4. Model Output
+## 💾 Savestate Slots
 
-Your LoRA-tuned model will be saved in:
+Use the dashboard buttons to:
+- 💾 Save current state to **slot 0**
+- 📥 Load previously saved state from **slot 0**
 
-```
-megaman-deepseek-lora/
-```
-
-You can load this back into Ollama or HuggingFace transformers using PEFT.
+Extendable to multiple slots later.
 
 ---
 
-### Optional Next Steps
+## 📜 Logs + Rewards
 
-- Add more diverse RAM/game states
-- Include screenshots for OCR-enhanced prompts
-- Merge LoRA into full model if needed (for local Ollama serving)
+Live data streamed from:
+- `game_memory/logs/chat_log.txt`
+- `game_memory/logs/reinforce_log.jsonl`
+
+Plotted in-browser using Plotly.js and shown frame-by-frame.
 
 ---
 
-Built with love by SciStories + ChatGPT
+## 🧠 Future Ideas
+
+- Multi-slot support for savestates
+- Auto-episode summarization + export
+- MJPEG or RTSP video feed
+- RL fine-tuning from collected sessions
+
+---
+
+Made by SciStories & ChatGPT. Ready for AI-assisted retro research labs 🍄🧠

@@ -92,7 +92,50 @@ What should the player do next?
         with open(f"game_memory/logs/step_{frame_count}.json", "w") as f:
             json.dump({"state": game_state, "action": action}, f, indent=2)
 
-        time.sleep(0.1)
+
+        # 10. Log reward data
+        from retroarch_interface.read_mario_ram import read_ram_state, calculate_score
+        reward_state = read_ram_state()
+        reward = calculate_score(reward_state)
+        with open("game_memory/logs/reinforce_log.jsonl", "a") as rf:
+            rf.write(json.dumps({
+                "frame": frame_count,
+                "state": game_state,
+                "action": action,
+                "reward": reward
+            }) + "\n")
+\n        
+        # CONTROL CHECK
+        control_path = "game_memory/control.json"
+        try:
+            with open(control_path, "r") as cf:
+                control = json.load(cf)
+
+            # Pause loop
+            if control.get("paused", False):
+                print("[PAUSED] Waiting...")
+                time.sleep(1)
+                continue
+
+            # Reset game
+            if control.get("reset_game", False):
+                os.system("python3 retroarch_interface/launch_with_state.py &")
+                print("[RESET] Relaunched RetroArch from savestate.")
+                control["reset_game"] = False
+
+            # Log episode
+            if control.get("log_episode", False):
+                with open("game_memory/logs/episode_marks.txt", "a") as epf:
+                    epf.write(f"EPISODE_MARK: frame {frame_count}\n")
+                print(f"[LOG] Episode marked at frame {frame_count}")
+                control["log_episode"] = False
+
+            with open(control_path, "w") as cf:
+                json.dump(control, cf)
+
+        except Exception as e:
+            print("Control file read error:", e)
+\n        time.sleep(0.1)
 
 if __name__ == "__main__":
     game_loop()

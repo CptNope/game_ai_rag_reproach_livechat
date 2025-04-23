@@ -1,5 +1,5 @@
 
-from retroarch_interface.read_megaman_ram import read_ram_state
+from retroarch_interface.read_mario_ram import read_ram_state
 
 def describe_state():
     state = read_ram_state()
@@ -8,36 +8,27 @@ def describe_state():
 
     phrases = []
 
-    # Interpret player's position
-    if state["player_x"] < 50:
-        phrases.append("Player is on the left side of the screen.")
+    if state["player_x"] < 100:
+        phrases.append("Mario is near the start of the level.")
     elif state["player_x"] > 200:
-        phrases.append("Player is on the right side of the screen.")
+        phrases.append("Mario is near the end of the screen.")
     else:
-        phrases.append("Player is near the center of the screen.")
+        phrases.append("Mario is in the middle of the screen.")
 
-    # Health interpretation
-    if state["health"] > 10:
-        phrases.append("Player has high health.")
-    elif state["health"] > 5:
-        phrases.append("Player has moderate health.")
-    else:
-        phrases.append("Player has low health.")
+    if state["powerup_state"] == 0:
+        phrases.append("Mario is small.")
+    elif state["powerup_state"] == 1:
+        phrases.append("Mario has a mushroom.")
+    elif state["powerup_state"] == 2:
+        phrases.append("Mario has a fire flower.")
 
-    # Enemy proximity
-    distance = abs(state["enemy_x"] - state["player_x"])
-    if distance < 20:
-        phrases.append("Enemy is very close.")
-    elif distance < 50:
-        phrases.append("Enemy is nearby.")
+    dy = abs(state["enemy1_x"] - state["player_x"])
+    if dy < 15:
+        phrases.append("An enemy is very close!")
+    elif dy < 50:
+        phrases.append("An enemy is nearby.")
     else:
-        phrases.append("Enemy is far away.")
-
-    # Weapon energy
-    if state["weapon_energy"] < 5:
-        phrases.append("Weapon energy is low.")
-    else:
-        phrases.append("Weapon energy is sufficient.")
+        phrases.append("No enemy in close range.")
 
     return " ".join(phrases)
 
