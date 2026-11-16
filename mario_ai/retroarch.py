@@ -47,7 +47,7 @@ class RetroArch:
         if len(parts) < 3 or parts[0] != "READ_CORE_MEMORY":
             raise RetroArchError("Unexpected reply from RetroArch: %r" % reply[:80])
         if parts[2] == "-1":
-            raise RetroArchError("RetroArch couldn't read memory: %s" % " ".join(parts[3:]) or "unknown error")
+            raise RetroArchError("RetroArch couldn't read memory: %s" % (" ".join(parts[3:]) or "unknown error"))
         values = bytes(int(b, 16) for b in parts[2:])
         if len(values) != length:
             raise RetroArchError("RetroArch returned %d bytes, expected %d" % (len(values), length))
