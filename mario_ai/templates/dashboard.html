@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mario AI Companion</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+  <header class="top">
+    <div class="title">
+      <h1>Mario AI Companion</h1>
+      <p class="sub"><span class="dot" id="dot" aria-hidden="true"></span><span id="status">Connecting…</span></p>
+    </div>
+    <nav class="controls" aria-label="Controls">
+      <button type="button" id="toggle" data-action="pause">Pause AI</button>
+      <button type="button" class="quiet" data-action="save_state">Save state</button>
+      <button type="button" class="quiet" data-action="load_state">Load state</button>
+      <button type="button" class="quiet" data-action="reset">Reset game</button>
+      <button type="button" class="quiet" data-action="mark">Mark episode</button>
+      <a class="quiet button" href="/api/export">Export session</a>
+    </nav>
+  </header>
+
+  <p class="problem" id="problem" role="alert" hidden></p>
+
+  <main class="grid">
+    <section class="panel now" aria-labelledby="now-h">
+      <h2 id="now-h">Right now <span class="stage" id="stage"></span></h2>
+      <p class="situation" id="situation">Waiting for the first move.</p>
+      <div class="decision">
+        <p class="move" id="move">–</p>
+        <p class="reason" id="reason"></p>
+        <p class="meta" id="meta"></p>
+      </div>
+      <h3>Remembered moments</h3>
+      <ul class="memories" id="memories"><li class="empty">Nothing similar yet. Memories build up as it plays.</li></ul>
+    </section>
+
+    <section class="panel frame" aria-labelledby="frame-h" id="frame-panel" hidden>
+      <h2 id="frame-h">Screen</h2>
+      <img id="frame" alt="Latest screen capture of the game">
+    </section>
+
+    <section class="panel stats" aria-labelledby="stats-h">
+      <h2 id="stats-h" class="visually-hidden">Stats</h2>
+      <dl class="tiles">
+        <div><dt>Score</dt><dd id="score">0</dd></div>
+        <div><dt>High score</dt><dd id="high">0</dd></div>
+        <div><dt>Lives</dt><dd id="lives">–</dd></div>
+        <div><dt>Lives lost</dt><dd id="deaths">0</dd></div>
+        <div><dt>Levels cleared</dt><dd id="cleared">0</dd></div>
+        <div><dt>Longest run</dt><dd id="run">0</dd></div>
+      </dl>
+    </section>
+
+    <section class="panel chart" aria-labelledby="progress-h">
+      <h2 id="progress-h">Progress through the level</h2>
+      <svg id="x-chart" viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Mario's position in the level over the last moves"></svg>
+    </section>
+
+    <section class="panel chart" aria-labelledby="score-h">
+      <h2 id="score-h">Score</h2>
+      <svg id="score-chart" viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Score over the last moves"></svg>
+    </section>
+
+    <section class="panel half" aria-labelledby="ach-h">
+      <h2 id="ach-h">Achievements <span class="count" id="ach-count"></span></h2>
+      <ul class="achievements" id="achievements"></ul>
+    </section>
+
+    <section class="panel half" aria-labelledby="levels-h">
+      <h2 id="levels-h">Levels</h2>
+      <table class="levels">
+        <thead><tr><th scope="col">Level</th><th scope="col">Attempts</th><th scope="col">Cleared</th><th scope="col">Furthest</th></tr></thead>
+        <tbody id="levels"><tr><td colspan="4" class="empty">No levels played yet.</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="panel log" aria-labelledby="log-h">
+      <h2 id="log-h">Activity</h2>
+      <ol class="events" id="events"></ol>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <script>window.ALL_ACHIEVEMENTS = {{ achievements|tojson }};</script>
+  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
